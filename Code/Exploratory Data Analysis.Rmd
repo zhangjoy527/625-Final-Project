@@ -1,1 +1,42 @@
+---
+title: "Exploratory Data Anaysis"
+author: "Joy Zhang"
+date: "2023-11-19"
+output: pdf_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/Joy Zhang/OneDrive/Desktop/UMICH/BIOSTAT 625")
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tableone)
+
+#read in data
+diabetes_data <- read.csv("diabetes_data.csv")
+diabetes_data$Diabetes_binary <- factor(diabetes_data$Diabetes_binary)
+```
+
+# Table one
+```{r}
+#Vector of variables to summarize
+myVars = c("Diabetes_binary", "HighBP", "HighChol", "CholCheck", "BMI", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth", "MentHlth", "PhysHlth", "Diffwalk", "Sex", "Age", "Education", "Income")
+
+#List of categorical variables
+catVars = c("Diabetes_binary", "HighBP")
+CreateTableOne(data = diabetes_data, vars = myVars, factorVars = catVars)
+```
+
+# Plots to see distribution of different covariates 
+```{r}
+ggplot(data = diabetes_data) + geom_bar(aes(x = Diabetes_binary))
+
+```
+
+# Fit full model
+```{r}
+model_full <- glm(data = diabetes_data, formula = Diabetes_binary ~., family = binomial("logit"))
+summary(model_full)
+```
