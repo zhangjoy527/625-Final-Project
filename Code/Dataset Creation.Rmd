@@ -64,6 +64,7 @@ diabetes_data$income_cat <- cut(diabetes_data$Income,
                                 include.lowest = TRUE,
                                 right = FALSE,
                                 labels = c(0, 1, 2))
+levels(diabetes_data$income_cat) <- c("Low Income", "Medium Income", "High Income")
 ```
 
 Re-categorize education
@@ -77,6 +78,7 @@ diabetes_data$edu_cat <- cut(diabetes_data$Education,
                    include.lowest=TRUE,
                    right=FALSE,
                    labels = c(0, 1))
+levels(diabetes_data$edu_cat) <- c("No College", "College")
 ```
 
 Re-categorize physical health
@@ -90,6 +92,7 @@ diabetes_data$PhysHlth_cat <- cut(diabetes_data$PhysHlth,
                         include.lowest=TRUE,
                         right=FALSE,
                         labels = c(0, 1))
+levels(diabetes_data$PhysHlth_cat) <- c("Low Physical Health", "High Physical Health")
 ```
 
 Re-categorize mental health
@@ -98,11 +101,12 @@ Re-categorize mental health
 # mental illness days in past 30 days < 5
 # mental illness days in past 30 days >= 5
 
-dat$MentHlth_cat <- cut(dat$MentHlth, 
+diabetes_data$MentHlth_cat <- cut(diabetes_data$MentHlth, 
                         breaks=c(0, 5, 30),
                         include.lowest=TRUE,
                         right=FALSE,
                         labels = c(0, 1))
+levels(diabetes_data$MentHlth_cat) <- c("Low Mental Health", "High Mental Health")
 ```
 
 Upload data as csv
