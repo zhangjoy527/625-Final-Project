@@ -1,5 +1,5 @@
 ---
-title: "Exploratory Data Anaysis"
+title: "Dataset Creation"
 author: "Joy Zhang"
 date: "2023-11-19"
 output: pdf_document
@@ -14,9 +14,12 @@ library(dplyr)
 library(ggplot2)
 library(tableone)
 
-#read in data
-diabetes_data <- read.csv("diabetes_data.csv")
+# read in data
+# diabetes_data <- read.csv("diabetes_data.csv")
+
+# factor covariates
 diabetes_data$Diabetes_binary <- factor(diabetes_data$Diabetes_binary)
+levels(diabetes_data$Diabetes_binary) <- c("No Diabetes", "Diabetes or Pre-Diabetic")
 diabetes_data$HighBP <- factor(diabetes_data$HighBP)
 diabetes_data$HighChol <- factor(diabetes_data$HighChol)
 diabetes_data$Smoker <- factor(diabetes_data$Smoker)
@@ -31,58 +34,81 @@ diabetes_data$NoDocbcCost <- factor(diabetes_data$NoDocbcCost)
 diabetes_data$GenHlth <- factor(diabetes_data$GenHlth)
 diabetes_data$DiffWalk <- factor(diabetes_data$DiffWalk)
 diabetes_data$Sex <- factor(diabetes_data$Sex)
-diabetes_data$Education <- factor(diabetes_data$Education)
-diabetes_data$Income <- factor(diabetes_data$Income)
 ```
 
-# Table one
+Re-categorize age
 ```{r}
-#Vector of variables to summarize
-myVars = c("Diabetes_binary", "HighBP", "HighChol", "BMI", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth", "MentHlth", "PhysHlth", "Diffwalk", "Sex", "Age", "Education", "Income")
+# categorize age into 4 groups
+# 18 < age < 35: 1, 2, 3
+# 35 < age < 50: 4, 5, 6
+# 50 < age < 65: 7, 8, 9
+# age > 65: 10, 11, 12, 13
 
-#List of categorical variables
-catVars = c("Diabetes_binary", "HighBP", "HighChol", "Smoker", "Stroke", "HeartDiseaseorAttack")
-CreateTableOne(data = diabetes_data, vars = myVars, factorVars = catVars)
-CreateTableOne(data = diabetes_data)
+diabetes_data$age_cat <- cut(diabetes_data$Age, 
+                   breaks=c(1, 4, 7, 10, 13),
+                   include.lowest=TRUE,
+                   right=FALSE,
+                   labels = c(0, 1, 2, 3))
+levels(diabetes_data$age_cat) <- c("Under 35", "35-49", "50-65", "Over 65")
 ```
 
-# Plots to see distribution of different covariates 
+Re-categorize income
 ```{r}
-ggplot(data = diabetes_data) + geom_bar(aes(x = Diabetes_binary))
+# categorize income into 3 groups
+# income < 25000 ---> low: 1, 2, 3, 4
+# 25000 < income < 75000 ---> medium: 5, 6, 7
+# income > 75000 ---> high: 8
 
+diabetes_data$income_cat <- cut(diabetes_data$Income, 
+                                breaks = c(1, 5, 7, 8),
+                                include.lowest = TRUE,
+                                right = FALSE,
+                                labels = c(0, 1, 2))
 ```
 
-# Fit full model
+Re-categorize education
 ```{r}
-model_full <- glm(data = diabetes_data, formula = Diabetes_binary ~., family = binomial("logit"))
-summary(model_full)
+# categorize education into 2 groups
+# never attended college: 1, 2, 3, 4
+# attended college: 5, 6
+
+diabetes_data$edu_cat <- cut(diabetes_data$Education, 
+                   breaks=c(1, 5, 6),
+                   include.lowest=TRUE,
+                   right=FALSE,
+                   labels = c(0, 1))
 ```
 
-# Model with only the predictors we're interested in
+Re-categorize physical health
 ```{r}
-"HighBP", "HighChol", "BMI", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth", "MentHlth", "PhysHlth", "Diffwalk", "Sex", "Age", "Education", "Income"
-model_1 <- glm(data = diabetes_data, formula = Diabetes_binary ~ PhysActivity + Smoker + Fruits + Veggies + HvyAlcoholConsump, family = binomial("probit"))
-model_2 <- glm(data = diabetes_data, formula = Diabetes_binary ~ HighBP + HighChol + BMI + Stroke + HeartDiseaseorAttack, family = binomial("logit"))
-# + Age + Sex + Education + Income
-summary(model_1)
-summary(model_2)
+# categorize physical health into 2 groups
+# physical illness or injury days in past 30 days < 5
+# physical illness or injury days in past 30 days >= 5
+
+diabetes_data$PhysHlth_cat <- cut(diabetes_data$PhysHlth, 
+                        breaks=c(0, 5, 30),
+                        include.lowest=TRUE,
+                        right=FALSE,
+                        labels = c(0, 1))
 ```
 
-
-# Using caret package to train our model
-
+Re-categorize mental health
 ```{r}
-library(caret)
-library(MLeval)
-tc <- trainControl(method = "cv", number = 10,
-                   savePredictions = T,
-                   classProbs = T)
-m <- train(Diabetes_binary ~., 
-           data = diabetes_data, 
-           method = "glm",
-           trControl = tc,
-           family = "binomial")
-m
+# categorize mental health into 2 groups
+# mental illness days in past 30 days < 5
+# mental illness days in past 30 days >= 5
+
+dat$MentHlth_cat <- cut(dat$MentHlth, 
+                        breaks=c(0, 5, 30),
+                        include.lowest=TRUE,
+                        right=FALSE,
+                        labels = c(0, 1))
 ```
+
+Upload data as csv
+```{r}
+write.csv(diabetes_data, "diabetes_data.csv")
+```
+
 
 
