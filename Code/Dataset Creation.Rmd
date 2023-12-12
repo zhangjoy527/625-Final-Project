@@ -1,0 +1,88 @@
+---
+title: "Exploratory Data Anaysis"
+author: "Joy Zhang"
+date: "2023-11-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/Joy Zhang/OneDrive/Desktop/UMICH/BIOSTAT 625")
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tableone)
+
+#read in data
+diabetes_data <- read.csv("diabetes_data.csv")
+diabetes_data$Diabetes_binary <- factor(diabetes_data$Diabetes_binary)
+diabetes_data$HighBP <- factor(diabetes_data$HighBP)
+diabetes_data$HighChol <- factor(diabetes_data$HighChol)
+diabetes_data$Smoker <- factor(diabetes_data$Smoker)
+diabetes_data$Stroke <- factor(diabetes_data$Stroke)
+diabetes_data$HeartDiseaseorAttack <- factor(diabetes_data$HeartDiseaseorAttack)
+diabetes_data$PhysActivity <- factor(diabetes_data$PhysActivity)
+diabetes_data$Fruits <- factor(diabetes_data$Fruits)
+diabetes_data$Veggies <- factor(diabetes_data$Veggies)
+diabetes_data$HvyAlcoholConsump <- factor(diabetes_data$HvyAlcoholConsump)
+diabetes_data$AnyHealthcare <- factor(diabetes_data$AnyHealthcare)
+diabetes_data$NoDocbcCost <- factor(diabetes_data$NoDocbcCost)
+diabetes_data$GenHlth <- factor(diabetes_data$GenHlth)
+diabetes_data$DiffWalk <- factor(diabetes_data$DiffWalk)
+diabetes_data$Sex <- factor(diabetes_data$Sex)
+diabetes_data$Education <- factor(diabetes_data$Education)
+diabetes_data$Income <- factor(diabetes_data$Income)
+```
+
+# Table one
+```{r}
+#Vector of variables to summarize
+myVars = c("Diabetes_binary", "HighBP", "HighChol", "BMI", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth", "MentHlth", "PhysHlth", "Diffwalk", "Sex", "Age", "Education", "Income")
+
+#List of categorical variables
+catVars = c("Diabetes_binary", "HighBP", "HighChol", "Smoker", "Stroke", "HeartDiseaseorAttack")
+CreateTableOne(data = diabetes_data, vars = myVars, factorVars = catVars)
+CreateTableOne(data = diabetes_data)
+```
+
+# Plots to see distribution of different covariates 
+```{r}
+ggplot(data = diabetes_data) + geom_bar(aes(x = Diabetes_binary))
+
+```
+
+# Fit full model
+```{r}
+model_full <- glm(data = diabetes_data, formula = Diabetes_binary ~., family = binomial("logit"))
+summary(model_full)
+```
+
+# Model with only the predictors we're interested in
+```{r}
+"HighBP", "HighChol", "BMI", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth", "MentHlth", "PhysHlth", "Diffwalk", "Sex", "Age", "Education", "Income"
+model_1 <- glm(data = diabetes_data, formula = Diabetes_binary ~ PhysActivity + Smoker + Fruits + Veggies + HvyAlcoholConsump, family = binomial("probit"))
+model_2 <- glm(data = diabetes_data, formula = Diabetes_binary ~ HighBP + HighChol + BMI + Stroke + HeartDiseaseorAttack, family = binomial("logit"))
+# + Age + Sex + Education + Income
+summary(model_1)
+summary(model_2)
+```
+
+
+# Using caret package to train our model
+
+```{r}
+library(caret)
+library(MLeval)
+tc <- trainControl(method = "cv", number = 10,
+                   savePredictions = T,
+                   classProbs = T)
+m <- train(Diabetes_binary ~., 
+           data = diabetes_data, 
+           method = "glm",
+           trControl = tc,
+           family = "binomial")
+m
+```
+
+
