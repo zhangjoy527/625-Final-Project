@@ -12,6 +12,7 @@ pacman::p_load(knitr, ResourceSelection, car,corrplot,dplyr,tableone,ggplot2,Met
 
 ```{r}
 dat <- read.csv("/Users/patrickmelrose/Downloads/625project/archive/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+#dat <- diabetes_data
 ```
 
 ```{r}
@@ -59,6 +60,18 @@ dat$edu_cat <- cut(dat$Education,
 # physical illness or injury days in past 30 days >= 5
 
 dat$PhysHlth_cat <- cut(dat$PhysHlth, 
+                        breaks=c(0, 5, 30),
+                        include.lowest=TRUE,
+                        right=FALSE,
+                        labels = c(0, 1))
+```
+
+```{r}
+# categorize mental health into 2 groups
+# mental illness days in past 30 days < 5
+# mental illness days in past 30 days >= 5
+
+dat$MentHlth_cat <- cut(dat$MentHlth, 
                         breaks=c(0, 5, 30),
                         include.lowest=TRUE,
                         right=FALSE,
