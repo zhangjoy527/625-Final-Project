@@ -1,0 +1,224 @@
+---
+title: "625 final project"
+author: "Jingyu Zhao"
+date: "2023-12-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(knitr, ResourceSelection, car,corrplot,dplyr,tableone,ggplot2,Metrics) 
+```
+
+```{r}
+dat <- read.csv("/Users/patrickmelrose/Downloads/625project/archive/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+```
+
+```{r}
+# categorize age into 4 groups
+# 18 < age < 35: 1, 2, 3
+# 35 < age < 50: 4, 5, 6
+# 50 < age < 65: 7, 8, 9
+# age > 65: 10, 11, 12, 13
+
+dat$age_cat <- cut(dat$Age, 
+                   breaks=c(1, 4, 7, 10, 13),
+                   include.lowest=TRUE,
+                   right=FALSE,
+                   labels = c(0, 1, 2, 3))
+```
+
+```{r}
+# categorize income into 3 groups
+# income < 25000 ---> low: 1, 2, 3, 4
+# 25000 < income < 75000 ---> medium: 5, 6, 7
+# income > 75000 ---> high: 8
+
+dat$income_cat <- cut(dat$Income, 
+                      breaks=c(1, 5, 7.01, 8),
+                      include.lowest=TRUE,
+                      right=FALSE,
+                      labels = c(0, 1, 2))
+```
+
+```{r}
+# categorize education into 2 groups
+# never attended college: 1, 2, 3, 4
+# attended college: 5, 6
+
+dat$edu_cat <- cut(dat$Education, 
+                   breaks=c(1, 5, 6),
+                   include.lowest=TRUE,
+                   right=FALSE,
+                   labels = c(0, 1))
+```
+
+```{r}
+# categorize physical health into 2 groups
+# physical illness or injury days in past 30 days < 5
+# physical illness or injury days in past 30 days >= 5
+
+dat$PhysHlth_cat <- cut(dat$PhysHlth, 
+                        breaks=c(0, 5, 30),
+                        include.lowest=TRUE,
+                        right=FALSE,
+                        labels = c(0, 1))
+```
+
+```{r}
+dat <- subset(dat, select = -c(BMI,GenHlth,MentHlth,PhysHlth,Age, Education, Income))
+
+dat[c("Diabetes_binary", "HighBP", "HighChol","CholCheck", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "DiffWalk", "Sex")] <- lapply(dat[c("Diabetes_binary", "HighBP", "HighChol","CholCheck", "Smoker", "Stroke", "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies", "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "DiffWalk", "Sex")], as.factor)
+summary(dat)
+```
+
+```{r}
+#correlation matrix with y
+dat[] <- lapply(dat, function(x) as.numeric(levels(x))[x])
+summary(dat)
+```
+
+```{r}
+M <- cor(dat)
+my_color_palette <- colorRampPalette(c("red", "green", "blue", "black"))(n = 100)
+corrplot(M, method = "number", number.cex = 0.3, tl.cex = 0.5, col = my_color_palette)
+```
+
+```{r}
+# Assuming 'dat' is your dataframe
+dat[] <- lapply(dat, as.factor)
+summary(dat)
+```
+
+```{r}
+my_table <- CreateTableOne(
+  vars = names(dat),
+  strata = "age_cat",
+  data = dat,
+  test = FALSE
+)
+print(my_table, showAllLevels = TRUE)
+```
+
+```{r}
+dat$Diabetes_binary <- as.numeric(dat$Diabetes_binary)
+
+# Stacked + percent
+ggplot(dat, aes(x = HighBP, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = HighChol, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = CholCheck, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = Smoker, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = Stroke, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = HeartDiseaseorAttack, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = PhysActivity, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = Fruits, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = Veggies, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = HvyAlcoholConsump, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = AnyHealthcare, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = NoDocbcCost, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = DiffWalk, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = Sex, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = income_cat, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = edu_cat, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+
+ggplot(dat, aes(x = PhysHlth_cat, y = Diabetes_binary, fill = age_cat)) +
+  geom_col(position = "fill")
+```
+
+```{r}
+dat$Diabetes_binary <- factor(dat$Diabetes_binary)
+
+set.seed(7)
+my_index <- sample(seq_len(nrow(dat)), size = 0.5*nrow(dat))
+train_data <- dat[my_index, ]
+test_data <- dat[-my_index, ]
+```
+
+```{r}
+model_age <- glm(data = train_data, formula = Diabetes_binary ~ age_cat, family = binomial("logit"))
+# logit/probit/cloglog
+summary(model_age)
+
+model_full <- glm(data = train_data, formula = Diabetes_binary ~., family = binomial("logit"))
+# logit/probit/cloglog
+summary(model_full)
+
+p_age <- predict(model_age, newdata = test_data, type = "response")
+
+test_data$Diabetes_binary <- as.numeric(as.character(test_data$Diabetes_binary))
+missing_indices <- is.na(test_data$Diabetes_binary)
+# Remove missing values
+p_age <- p_age[!missing_indices]
+actual_values <- na.omit(test_data$Diabetes_binary)
+p_age <- as.numeric(as.character(p_age))
+(rmse_value_age <- rmse(actual_values, p_age))
+
+p_full <- predict(model_full, newdata = test_data, type = "response")
+p_full <- p_full[!missing_indices]
+p_full <- as.numeric(as.character(p_full))
+(rmse_value_full <- rmse(actual_values, p_full))
+```
+
+```{r}
+model_full_vif <- vif(model_full)
+res<-t(data.frame(VIF=model_full_vif))
+kable(res, digits=2)
+```
+In model_full, most variables have GVIF values close to 1, suggesting low multicollinearity. However, 'DiffWalk' stands out with a higher GVIF value, indicating a potential issue.
+
+```{r}
+# Pearson Chi-square Goodness of Fit Test
+PChiAgeLog <- sum(residuals(model_age, type = "pearson") ^ 2)
+df <- nrow(train_data)-ncol(train_data)
+p_value <- pchisq(PChiAgeLog, df, lower.tail = FALSE)
+
+cat("Chi-square statistic:", PChiAgeLog, "\n")
+cat("degrees of freedom:", df, "\n")
+cat("p-value:", p_value, "\n")
+
+PChiFullLog <- sum(residuals(model_full, type = "pearson") ^ 2)
+df <- nrow(train_data)-ncol(train_data)
+p_value <- pchisq(PChiFullLog, df, lower.tail = FALSE)
+
+cat("Chi-square statistic:", PChiFullLog, "\n")
+cat("degrees of freedom:", df, "\n")
+cat("p-value:", p_value, "\n")
+```
+The p-value associated with the chi-square statistic is extremely high, suggesting that there is no evidence to reject the null hypothesis. In other words, the model is a good fit, and there is no significant difference between the observed and expected values.
+
+```{r}
+#relationship between the fitted values and the Pearson residuals
+plot(x = fitted.values(model_full), y = residuals(model_full, type = "pearson"),
+     col = ifelse (train_data[, "Diabetes_binary"] == 1, "blue", "green"))
+```
