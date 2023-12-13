@@ -27,14 +27,13 @@ Before proceeding with our model construction, we chose to re-categorize certain
 
 ## Model Selection
 Due to consistent research on the limitations of BMI as an effective health and obesity indicator, we decided to exclude BMI variable from our model [4, 5, 7]. This decision was based on the fact that BMI does not directly measure the body fat, and many factors including muscle and bone mass can influence the index. We also chose to exclude our General Health covariate, since our data set already included Physical Health and Mental Health and the General Health would be redundant and highly correlated to the previous two. 
-A generalized linear model (glm) was chosen due to our binary response. ***** Needs more 
+Due to consistent research on the limitations of BMI as an effective health and obesity indicator, we decided to exclude BMI variable from our model [4, 5, 7]. This decision was based on the fact that BMI does not directly measure the body fat, and many factors including muscle and bone mass can influence the index. We also chose to exclude our General Health covariate, since our data set already included Physical Health and Mental Health and the General Health would be redundant and highly correlated to the previous two. 
+A generalized linear model (GLM) with a logit link function was fitted in R using the `glm` package because our `Diabetes_binary` response, \(Y_i\), takes either 1 or 0 at the individual level. Observation pairs \( (x_i, Y_i) \) are independent. With the GLM link function, it takes the following assumptions: for the systemic component \( g(\pi_i) = \log\left(\frac{\pi_i}{1 - \pi_i}\right) = x_i^T \beta \) and a random component of \( Y_i \sim \text{Binomial}(n_i, \pi_i) \). The mean function is \( \mu_i = \pi_i \), and the variance function is \( v(\pi_i) = \pi_i (1 - \pi_i) \). Our first glm model with just the age variable is $\text{logit}(\pi_i) = \beta_0 + \beta_1 \cdot \text{Age\_35-49} + \beta_2 \cdot \text{Age\_50-65} + \beta_3 \cdot \text{Age\_over 65}$ with the intercept for ages 18-34. Our second glm model with the rest of the selected covariates is $\text{logit}(\pi_i) = \beta_0 + \beta_1 \cdot \text{Age\_35-49} + \beta_2 \cdot \text{Age\_50-65} + \beta_3 \cdot \text{Age\_over 65} + \beta_4 \cdot \text{HighBP1} + \beta_5 \cdot \text{HighChol1} + \beta_6 \cdot \text{CholCheck} + \beta_7 \cdot \text{Smoker1} + \beta_8 \cdot \text{Stroke1} + \beta_9 \cdot \text{HeartDiseaseorAttack1} + \beta_{10} \cdot \text{PhysActivity1} + \beta_{11} \cdot \text{Fruits1} + \beta_{12} \cdot \text{Veggies1} + \beta_{13} \cdot \text{HvyAlcoholConsump1} + \beta_{14} \cdot \text{AnyHealthcare1} + \beta_{15} \cdot \text{NoDocbcCost1} + \beta_{16} \cdot \text{High\_Physical\_Health} + \beta_{17} \cdot \text{High\_Mental\_Health} + \beta_{18} \cdot \text{DiffWalk1} + \beta_{19} \cdot \text{Male} + \beta_{20} \cdot \text{Medium\_Income} + \beta_{21} \cdot \text{High\_Income} + \beta_{22} \cdot \text{Edu\_College}$ 
 
 # Results
 
 ## Exploratory Data Analysis
-
-******* needs more
-Plot to show diabetes distribution by age - we see that individuals with diabetes are older than individuals without diabetes
+Figure 1 shows cases of diabetes or prediabetes distributed by age, and we observe that individuals with diabetes are older than individuals without diabetes, especially those over the age of 65. In addition, our dataset contains over 40% of the older population with age over 65 years old and 6.3% of ages 18 to 34. Over 45% of participants have income above $75,000 per year, while ages 35-49 group has the highest proportion. There are also slightly fewer males in the study across all age groups. The proportion of health covariates indicating high blood pressure, high cholesterol, smoking, stroke, heart disease, difficulty walking and access to health care all showed in increasing trend with age, while physical activity decreased with age. There were less than 10% of cases of stroke, heavy alcohol consumption, not being able to see a doctor due to cost, and poor mental health. In addition, over 65% of total participants hold college degrees and beyond. Over half of the participants consume vegetables and fruits at least once a day. As the onset of Type 2 diabetes mostly occurs in middle and older adults, our data also shows higher counts of diabetes in older adults.
 
 ```{r, echo=F, fig.dim = c(5, 3), fig.align='center'}
 ggplot(diabetes_data) + 
@@ -52,6 +51,9 @@ ggplot(diabetes_data) +
   labs(x = "Age")
 ```
 
+## Model Results
+In the model with just the age categorical variable, the positive coefficients indicate that the intercept suggests that the log odds of diabetes significantly increase as age increases compared to the adults age 18-34 with a significance level of $\alpha = 0.05$. This result supports literature reviews because several types of research have shown greater risk for older populations. In our second model with age and other variables, most of the variables show the very strong significance for diabetes except for smoking, any health care access, and poor mental health. The effect of age on the log odds of having diabetes for ages between 50-65 is 1.26 compared to the ages 18-34 group, adjusting for other covariates. Similarly, the effect of age on the log odds of having diabetes for ages above 65 years compared to the 18-34 age group is 1.41, adjusting for other covariates.
+
 ## Model Diagnostics
 ******* needs more
 
@@ -60,24 +62,29 @@ A secondary goal of our project was to create an application for not just our us
 
 # Discussion
 
-************* needs more
+Aging has shown to affect glucose sensitivity and impair insulin secretion by the pancreatic cells, increasing the risk for diabetes. Our results significantly matches with the literature that overviews age as an important predictor of diabetes [7, 11, 2, 9, 1]. Also, in our study, higher prevalence of diabetes or prediabetes were shown in males. Our research utilized survey data, which could potentially exhibit inherent bias, given that participants self-reported their responses via telephone. Also, our research may not fully capture non-modifiable diabetes risk factors such as genetic factors, gestational diabetes, and family history.
 
 # References
 
-[1] Boon How Chew et al. “Age 60years was an independent risk factor for diabetes-related complications despite good control of cardiovascular risk factors in patients with type 2 diabetes mellitus”. In: Experimental Gerontology 48.5 (May 2013), pp. 485–491. issn: 0531-5565. doi: 10.1016/j.exger.2013.02.017. url: http://dx.doi.org/10.1016/j.exger.2013.02.017.
+[1] N. Bahour et al. “Diabetes mellitus correlates with increased biological age as indicated by clinical biomarkers”. In: Geroscience 44.1 (Feb. 2022), pp. 415–427.
 
-[2] National Institute of Diabetes, Digestive, and Kidney Diseases. Diabetes Statistics. Feb. 2023. url: https://www.niddk.nih.gov/health-information/health-statistics/diabetes-statistics.
+[2] Boon How Chew et al. “Age 60years was an independent risk factor for diabetes-related complications despite good control of cardiovascular risk factors in patients with type 2 diabetes mellitus”. In: Experimental Gerontology 48.5 (May 2013), pp. 485–491. issn: 0531-5565. doi: 10.1016/j.exger.2013.02.017. url: http://dx.doi.org/10.1016/j.exger.2013.02.017.
 
-[3] Centers for Disease Control and Prevention. What is Diabetes. Sept. 5, 2023. url: https://www.cdc.gov/diabetes/basics/diabetes.html.
+[3] National Institute of Diabetes, Digestive, and Kidney Diseases. Diabetes Statistics. Feb. 2023. url: https://www.niddk.nih.gov/health-information/health- statistics/diabetes-statistics.
 
-[4] Dong Hoon Lee et al. “Comparison of the association of predicted fat mass, body mass index, and other obesity indicators with type 2 diabetes risk: two large prospective studies in US men and women”. In: European Journal of Epidemiology 33.11 (Aug. 2018), pp. 1113–1123. issn: 1573-7284. doi: 10.1007/s10654-018-0433-5. url: http://dx.doi.org/10.1007/s10654-018-0433-5.
+[4] Centers for Disease Control and Prevention. What is Diabetes. Sept. 5, 2023. url: https: //www.cdc.gov/diabetes/basics/diabetes.html.
 
-[5] Shriraam Mahadevan and Iftikhar Ali. “Is body mass index a good indicator of obesity?” In: International Journal of Diabetes in Developing Countries 36.2 (June 2016), pp. 140–142. issn: 1998-3832. doi: 10.1007/s13410-016-0506-5. url: http://dx.doi.org/10.1007/s13410-016-0506-5.
+[5] Dong Hoon Lee et al. “Comparison of the association of predicted fat mass, body mass index, and other obesity indicators with type 2 diabetes risk: two large prospective studies in US men and women”. In: European Journal of Epidemiology 33.11 (Aug. 2018), pp. 1113–1123. issn: 1573-7284. doi: 10.1007/s10654-018-0433-5. url: http://dx.doi.org/10.1007/s10654-018-0433-5.
 
-[6] K. Mordarska and M. Godziejewska-Zawada. “Diabetes in the elderly”. In: Prz Menopauzalny16.2 (June 2017), pp. 38–43.
+[6] Shriraam Mahadevan and Iftikhar Ali. “Is body mass index a good indicator of obesity?” In: International Journal of Diabetes in Developing Countries 36.2 (June 2016), pp. 140–142. issn: 1998-3832. doi: 10.1007/s13410-016-0506-5. url: http://dx.doi.org/10.1007/s13410-016-0506-5.
 
-[7] K. M. Narayan et al. “Effect of BMI on lifetime risk for diabetes in the U.S”. In: Diabetes Care 30.6 (June 2007), pp. 1562–1566.
+[7] K. Mordarska and M. Godziejewska-Zawada. “Diabetes in the elderly”. In: Prz Menopauzalny 16.2 (June 2017), pp. 38–43.
 
-[8] Alex Teboul. Diabetes Health Indicators Dataset. 2021. url: https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/data.
+[8] K. M. Narayan et al. “Effect of BMI on lifetime risk for diabetes in the U.S”. In: Diabetes Care 30.6 (June 2007), pp. 1562–1566.3
 
+[9] I O Okwechime, S Roberson, and A Odoi. “Prevalence and Predictors of Pre-Diabetes and Diabetes among Adults 18 Years or Older in Florida: A Multinomial Logistic Modeling Approach”. In: PLoS One 10.12 (2015), e0145781.
+
+[10] Alex Teboul. Diabetes Health Indicators Dataset. 2021. url: https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/data.
+
+[11] Z. Yan et al. “The Interaction Between Age and Risk Factors for Diabetes and Prediabetes: A Community-Based Cross-Sectional Study”. In: Diabetes Metab Syndr Obes 16 (2023), pp. 85–93.
 
