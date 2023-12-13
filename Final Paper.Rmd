@@ -11,6 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(ggplot2)
+library(kableExtra)
 diabetes_data <- read_csv("diabetes_data.csv")
 ```
 
@@ -88,3 +89,27 @@ Aging has shown to affect glucose sensitivity and impair insulin secretion by th
 
 [11] Z. Yan et al. “The Interaction Between Age and Risk Factors for Diabetes and Prediabetes: A Community-Based Cross-Sectional Study”. In: Diabetes Metab Syndr Obes 16 (2023), pp. 85–93.
 
+# Appendix
+```{r, include=FALSE}
+diabetes_data$MentHlth_cat <- cut(diabetes_data$MentHlth, 
+                        breaks=c(0, 5, 30),
+                        include.lowest=TRUE,
+                        right=FALSE,
+                        labels = c(0, 1))
+levels(diabetes_data$MentHlth_cat) <- c("Low Mental Health", "High Mental Health")
+
+diabetes_data$Diabetes_binary <- ifelse(diabetes_data$Diabetes_binary == "No Diabetes", 0, 1)
+age_model <- glm(data = diabetes_data, formula = Diabetes_binary ~ age_cat, family = binomial("logit"))
+
+model_filtered<-glm(data = diabetes_data, formula = Diabetes_binary ~ age_cat+ HighBP + HighChol + CholCheck + Smoker + Stroke + HeartDiseaseorAttack + PhysActivity + Fruits + Veggies + HvyAlcoholConsump + AnyHealthcare + NoDocbcCost + PhysHlth_cat + MentHlth_cat + DiffWalk + Sex + income_cat + edu_cat , family = binomial("logit"))
+
+```
+
+```{r,echo = F}
+kable(summary(age_model)$coeff, caption = "Table 1. Estimates of Age categories on diabetes") %>%
+  kable_styling(full_width = FALSE)
+
+kable(summary(model_filtered)$coeff, caption = "Table 2. Estimates of Age categories on diabetes along with other covariates") %>%
+  kable_styling(full_width = FALSE)
+
+```
